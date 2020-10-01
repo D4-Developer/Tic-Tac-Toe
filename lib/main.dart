@@ -22,8 +22,8 @@ class HomePageState extends State<HomePage> {
 
   var gameStartedData = {
     'turn': 0,
-    'player1': 'INF',
-    'player2': 'RCB',
+    'player1': player1,
+    'player2': player2,
     'boardData': boardEmpty,
   };
 
@@ -150,6 +150,8 @@ class _PlayerListState extends State<PlayerList> {
 
   Future initiateGame(String requestedPlayer) async {
     connection = Firestore.instance.collection('runningGame').document().documentID;
+    /// should be fixed 0th document in future for multi-to-multi friended game request to reach to proper User....
+    String encodedUserBoard = connection.elementAt(0).data['boardKey']+;
     var data = {
       'gameData': connection,
       'isAvailable': false,
@@ -214,6 +216,7 @@ class _PlayerListState extends State<PlayerList> {
                                   subtitle: Text("${userData['isRequestAccepted']}", textScaleFactor: 1),
                                   trailing: RaisedButton(
                                     onPressed: () async {
+                                      String encodedUserBoard = documents.elementAt(index).data['boardKey'];
                                       if (documents.elementAt(index).data['isAvailable']) {
                                         var data = {
                                           'requestReceived': true,
@@ -223,11 +226,11 @@ class _PlayerListState extends State<PlayerList> {
                                         await Firestore.instance.collection('users')
                                             .document(documents.elementAt(index)['userName'])
                                             .updateData(data);
-//                                        print("done");
+                                       print("done");
                                         data = {'isRequestAccepted': false};
                                         await Firestore.instance.collection('users')
                                             .document(userData['userName']).updateData(data);
-//                                        Stream <DocumentSnapshot> qs = gettingRequest();
+                                       Stream <DocumentSnapshot> qs = Firebase.instace.collection('runningGame').document(encodedUserBoard);
                                         gettingRequest();
                                       }
                                     },
