@@ -68,38 +68,53 @@ class LoginPage extends StatelessWidget {
 */
 
   googleSignInButton(BuildContext context){
-    return Center(
-      child: Container(
-        child: RaisedButton(
-          shape: StadiumBorder(),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.arrow_forward_ios),
-              Container(
-                child: Text('Google sign in'),
-              )
-            ],
+    /// When the Scaffold is actually created in the same build function,
+    /// the context argument to the build function can't be used to find
+    /// the Scaffold (since it's "above" the widget being returned in the widget tree).
+    return Builder(
+      builder: (BuildContext context){
+        return Center(
+          child: Container(
+            height: 50,
+            child: RaisedButton(
+              shape: StadiumBorder(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset('assets/google_login.png', width: 35, height: 35,),
+                  Padding(
+                    padding: EdgeInsets.all(7),
+                  ),
+                  Container(
+                    child: Text('Continue with Google'),
+                  )
+                ],
+              ),
+              onPressed: (){
+                loading(context);
+                _googleSignIn(context);
+              },
+            ),
           ),
-          onPressed: (){
-            loading(context);
-            _googleSignIn(context);
-          },
-        ),
-      ),
+        );
+      },
     );
   }
   
   _googleSignIn(BuildContext context) async{
     AuthProvider _authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    if(await _authProvider.handleGoogleSignIn()
+    if(await _authProvider.handleGoogleSignIn(context)
         && _authProvider.authStatus == AuthStatus.LoggedIn){
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
     }
 
     else{
       /// showError message....
+      print("else @_googleSignIn");
+      Navigator.pop(context);
+      showSnackBar(context, Text("canceled by you"));
+
     }
   }
 

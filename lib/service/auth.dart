@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../loading.dart';
 import '../model/userModel.dart';
 
 enum AuthStatus {
@@ -30,13 +31,13 @@ class AuthProvider extends ChangeNotifier{
     _authStatus = status;
   }
 
-  Future<bool> handleGoogleSignIn() async{
+  Future<bool> handleGoogleSignIn(BuildContext context) async{
 
     try{
       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
       if(googleUser == null){
         print('Failed Google Sign In');
-        return null;
+        return false;
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -55,6 +56,14 @@ class AuthProvider extends ChangeNotifier{
 
     }catch(e){
       print(e.toString() + '@_handleGoogleSignIn');
+      /// .pop for loading showDialog
+      // Navigator.pop(context);
+
+      String msg = e.toString().contains('PlatformException(network_error,')
+          ? 'Connect device to internet'
+          : e.toString().substring(0,20);
+
+      showSnackBar(context, Text(msg));
     }
 
     _authStatus = AuthStatus.NotLoggedIn;
