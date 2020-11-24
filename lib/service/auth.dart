@@ -15,7 +15,7 @@ enum AuthStatus {
   // LoggedOut
 }
 
-class AuthProvider extends ChangeNotifier{
+class AuthProvider extends ChangeNotifier {
 
   User _user;
   FirebaseUser _firebaseUser;
@@ -52,16 +52,18 @@ class AuthProvider extends ChangeNotifier{
       
       if (authResult.additionalUserInfo.isNewUser) {
         await _createUserInFireStore();
+        _authStatus = AuthStatus.LoggedIn;
+        return true;
       }
       
       else if(await _initUserData(_firebaseUser)) {
         _authStatus = AuthStatus.LoggedIn;
         return true;
       }
-      
-      
 
-    } catch(e) {
+
+
+    } catch (e) {
       print(e.toString() + '@_handleGoogleSignIn');
       /// .pop for loading showDialog
       // Navigator.pop(context);
@@ -78,20 +80,26 @@ class AuthProvider extends ChangeNotifier{
     return false;
   }
   
-  _createUserInFireStore() async{
+  _createUserInFireStore() async {
     print (_firebaseUser.displayName);
-    print (_firebaseUser.providerData.first);
+    // print (_firebaseUser.providerData);
 
     var newUserData = {
-      'userName': _firebaseUser.displayName
+      'name': _firebaseUser.displayName,
+      'userName' : _createUserName(),
     };
 
     Firestore.instance.collection('users').document(_firebaseUser.uid)
         .setData(newUserData);
   }
 
-  _initUserData (FirebaseUser firebaseUser) async{
-    try{
+  _createUserName () {
+    String uid = _firebaseUser.uid.substring(0,5);
+    return _firebaseUser.displayName.split(' ')[0] + uid;
+  }
+
+  _initUserData (FirebaseUser firebaseUser) async {
+    try {
       DocumentSnapshot ds = await Firestore.instance.collection('users')
           .document(_firebaseUser.uid).get();
 
@@ -99,8 +107,8 @@ class AuthProvider extends ChangeNotifier{
       print(data);
 
       return true;
-    }catch(e){
-      print(e.toString() + '@_initData');
+    } catch(e) {
+      print(e.toString() + '@_initUserData');
     }
     return false;
   }
