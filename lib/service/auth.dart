@@ -19,7 +19,7 @@ class AuthProvider extends ChangeNotifier{
 
   User _user;
   FirebaseUser _firebaseUser;
-  FirebaseAuth _firebaseAuth;
+  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
@@ -33,11 +33,11 @@ class AuthProvider extends ChangeNotifier{
 
   Future<bool> handleGoogleSignIn(BuildContext context) async{
 
-    try{
+    try {
       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-      if(googleUser == null){
+      if (googleUser == null){
         print('Failed Google Sign In');
-        return false;
+
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -47,14 +47,21 @@ class AuthProvider extends ChangeNotifier{
           accessToken: googleAuth.accessToken
       );
 
-      _firebaseUser = (await _firebaseAuth.signInWithCredential(credential)).user;
-
-      if(await _initUserData(_firebaseUser)) {
+      AuthResult authResult = await _firebaseAuth.signInWithCredential(credential);
+      _firebaseUser = authResult.user;
+      
+      if (authResult.additionalUserInfo.isNewUser) {
+        await _createUserInFireStore();
+      }
+      
+      else if(await _initUserData(_firebaseUser)) {
         _authStatus = AuthStatus.LoggedIn;
         return true;
       }
+      
+      
 
-    }catch(e){
+    } catch(e) {
       print(e.toString() + '@_handleGoogleSignIn');
       /// .pop for loading showDialog
       // Navigator.pop(context);
@@ -64,10 +71,23 @@ class AuthProvider extends ChangeNotifier{
           : e.toString().substring(0,20);
 
       showSnackBar(context, Text(msg));
+      return true;
     }
 
     _authStatus = AuthStatus.NotLoggedIn;
     return false;
+  }
+  
+  _createUserInFireStore() async{
+    print (_firebaseUser.displayName);
+    print (_firebaseUser.providerData.first);
+
+    var newUserData = {
+      'userName': _firebaseUser.displayName
+    };
+
+    Firestore.instance.collection('users').document(_firebaseUser.uid)
+        .setData(newUserData);
   }
 
   _initUserData (FirebaseUser firebaseUser) async{
@@ -78,11 +98,11 @@ class AuthProvider extends ChangeNotifier{
       Map<String, dynamic> data = ds.data;
       print(data);
 
-      // return true;
+      return true;
     }catch(e){
       print(e.toString() + '@_initData');
     }
-
+    return false;
   }
 
 }

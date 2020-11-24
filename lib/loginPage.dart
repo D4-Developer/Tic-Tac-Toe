@@ -101,19 +101,19 @@ class LoginPage extends StatelessWidget {
     );
   }
   
-  _googleSignIn(BuildContext context) async{
+  _googleSignIn (BuildContext context) async{
     AuthProvider _authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    if(await _authProvider.handleGoogleSignIn(context)
+    if (await _authProvider.handleGoogleSignIn(context)
         && _authProvider.authStatus == AuthStatus.LoggedIn){
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
     }
 
-    else{
+    else {
       /// showError message....
       print("else @_googleSignIn");
       Navigator.pop(context);
-      showSnackBar(context, Text("canceled by you"));
+      showSnackBar(context, Text("If something went wrong, please try again | contact us"));
 
     }
   }
