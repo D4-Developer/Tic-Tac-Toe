@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'loginPage.dart';
+import 'service/auth.dart';
 
 TextEditingController t = new TextEditingController();
 var connection, userData;
-void main() => runApp(MaterialApp(home: HomePage()));
+void main() => runApp(MaterialApp(home: MainPage()));
 
-class HomePage extends StatefulWidget {
+class MainPage extends StatefulWidget {
   @override
-  HomePageState createState() => HomePageState();
+  MainPageState createState() => MainPageState();
 }
 
 String x = Firestore.instance.collection('runningGame').document().documentID;
 
 List<int> boardEmpty = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-class HomePageState extends State<HomePage> {
+class MainPageState extends State<MainPage> {
   @override
   void initState() {
 //    initiateGame();
@@ -29,8 +32,14 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider())
+      ],
+      builder: (BuildContext context, child){
+        return LoginPage();
+      },
+    );/*Scaffold(
         appBar: AppBar(
           title: Text("Tic Tac Toe"),
           actions: <Widget>[
@@ -76,9 +85,22 @@ class HomePageState extends State<HomePage> {
                         MaterialPageRoute(builder: (context) => PlayerList()));
                   }
                 },
-              ))
+              )),
+              googlePlayGames(),
             ],
           ),
+        ),
+      )
+    );*/
+  }
+
+  googlePlayGames(){
+    return Center(
+      child: RaisedButton(
+        shape: StadiumBorder(),
+        onPressed: (){},
+        child: Container(
+          child: Text('Google play signin'),
         ),
       ),
     );
