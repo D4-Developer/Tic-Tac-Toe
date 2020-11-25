@@ -17,7 +17,6 @@ enum AuthStatus {
 
 class AuthProvider extends ChangeNotifier {
 
-  User _user;
   FirebaseUser _firebaseUser;
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -26,6 +25,8 @@ class AuthProvider extends ChangeNotifier {
   AuthStatus _authStatus = AuthStatus.NotLoggedIn;
 
   AuthStatus get authStatus => _authStatus;
+
+  FirebaseUser get firebaseUser => _firebaseUser;
 
   void set(AuthStatus status){
     _authStatus = status;
@@ -50,18 +51,14 @@ class AuthProvider extends ChangeNotifier {
       AuthResult authResult = await _firebaseAuth.signInWithCredential(credential);
       _firebaseUser = authResult.user;
       
-      if (authResult.additionalUserInfo.isNewUser) {
+      if (authResult.additionalUserInfo.isNewUser)
         await _createUserInFireStore();
-        _authStatus = AuthStatus.LoggedIn;
-        return true;
-      }
-      
-      else if(await _initUserData(_firebaseUser)) {
-        _authStatus = AuthStatus.LoggedIn;
-        return true;
-      }
+        // return true;
 
+      print('true');
 
+      _authStatus = AuthStatus.LoggedIn;
+      return true;
 
     } catch (e) {
       print(e.toString() + '@_handleGoogleSignIn');
@@ -79,38 +76,26 @@ class AuthProvider extends ChangeNotifier {
     _authStatus = AuthStatus.NotLoggedIn;
     return false;
   }
-  
+
   _createUserInFireStore() async {
     print (_firebaseUser.displayName);
     // print (_firebaseUser.providerData);
 
     var newUserData = {
       'name': _firebaseUser.displayName,
-      'userName' : _createUserName(),
+      'userName': _createUserName(),
+      'isOnline': false,
+      'isAvailable': false,
+
     };
 
-    Firestore.instance.collection('users').document(_firebaseUser.uid)
+    await Firestore.instance.collection('users').document(_firebaseUser.uid)
         .setData(newUserData);
   }
 
   _createUserName () {
     String uid = _firebaseUser.uid.substring(0,5);
     return _firebaseUser.displayName.split(' ')[0] + uid;
-  }
-
-  _initUserData (FirebaseUser firebaseUser) async {
-    try {
-      DocumentSnapshot ds = await Firestore.instance.collection('users')
-          .document(_firebaseUser.uid).get();
-
-      Map<String, dynamic> data = ds.data;
-      print(data);
-
-      return true;
-    } catch(e) {
-      print(e.toString() + '@_initUserData');
-    }
-    return false;
   }
 
 }

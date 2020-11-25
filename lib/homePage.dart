@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tic_tac_toe/service/auth.dart';
+import 'package:tic_tac_toe/service/userService.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -7,9 +10,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _index = 0;
+  UserProvider _userProvider;
+
+  @override
+  void initState() {
+
+    // AuthProvider authProvider = Provider.of<AuthProvider>(context,listen: false);
+    _userProvider = Provider.of<UserProvider>(context, listen: false)
+      .initUserData();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(_index);
     return Scaffold(
       body: SafeArea(
         child: WillPopScope(
@@ -21,35 +36,42 @@ class _HomePageState extends State<HomePage> {
             children: [
               _playersStack(),
               _profileStack()
+
             ],
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        // type: BottomNavigationBarType.shifting,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.widgets),
-            title: Text('Players')
+            icon: Icon(Icons.widgets_outlined),
+            activeIcon: Icon(Icons.widgets_rounded),
+            label: 'Players'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            title: Text('Profile')
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile'
           ),
         ],
+        currentIndex: _index,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.blueGrey,
         onTap: (index){
-          setState(() {
-            _index = index;
-          });
+          if (index != _index)
+            setState(() {
+              _index = index;
+            });
+          // print(index);
         },
       ),
     );
   }
 
   _playersStack() {
-    return SafeArea(
-      child: Container(
-        child: Text('players list'),
-      ),
+    return Container(
+      child: Text('aa'),
     );
   }
 

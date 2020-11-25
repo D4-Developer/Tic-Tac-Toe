@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 import 'loginPage.dart';
 import 'service/auth.dart';
+import 'service/userService.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 TextEditingController t = new TextEditingController();
 var connection, userData;
@@ -34,12 +35,18 @@ class MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider())
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider(context))
       ],
       builder: (BuildContext context, child){
-        return LoginPage();
+        return Builder(
+          builder: (BuildContext context){
+            return LoginPage();
+          },
+        );
       },
-    );/*Scaffold(
+    );
+    /*Scaffold(
         appBar: AppBar(
           title: Text("Tic Tac Toe"),
           actions: <Widget>[
