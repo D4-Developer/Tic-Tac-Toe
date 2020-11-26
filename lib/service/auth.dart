@@ -17,6 +17,7 @@ enum AuthStatus {
 
 class AuthProvider extends ChangeNotifier {
 
+  User authUser;
   FirebaseUser _firebaseUser;
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -53,6 +54,8 @@ class AuthProvider extends ChangeNotifier {
       
       if (authResult.additionalUserInfo.isNewUser)
         await _createUserInFireStore();
+      else
+        await initUserData();
         // return true;
 
       print('true');
@@ -86,8 +89,9 @@ class AuthProvider extends ChangeNotifier {
       'userName': _createUserName(),
       'isOnline': false,
       'isAvailable': false,
-
+      'uid': _firebaseUser.uid
     };
+
 
     await Firestore.instance.collection('users').document(_firebaseUser.uid)
         .setData(newUserData);
@@ -96,6 +100,24 @@ class AuthProvider extends ChangeNotifier {
   _createUserName () {
     String uid = _firebaseUser.uid.substring(0,5);
     return _firebaseUser.displayName.split(' ')[0] + uid;
+  }
+
+  Future initUserData () async {
+    try {
+      _firebaseUser = firebaseUser;
+      print(_firebaseUser.uid);
+
+      DocumentSnapshot ds = await Firestore.instance.collection('users')
+          .document(_firebaseUser.uid).get();
+
+      // Map<String, dynamic> data = ds.data;
+      authUser = User.fromJson(ds.data);
+      print(ds.data);
+      // return true;
+    } catch(e) {
+      print(e.toString() + '@initUserData');
+    }
+    // return false;
   }
 
 }

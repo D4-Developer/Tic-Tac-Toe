@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 TextEditingController t = new TextEditingController();
 var connection, userData;
-void main() => runApp(MaterialApp(home: MainPage()));
+void main() => runApp(MainPage());
 
 class MainPage extends StatefulWidget {
   @override
@@ -36,16 +36,19 @@ class MainPageState extends State<MainPage> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider(context))
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider())
       ],
       builder: (BuildContext context, child){
-        return Builder(
-          builder: (BuildContext context){
-            return LoginPage();
+        return MaterialApp(
+          initialRoute: '/',
+          routes: {
+            '/': (context) => LoginPage(),
+            '/playersPage': (context) => LoginPage()
           },
         );
       },
     );
+
     /*Scaffold(
         appBar: AppBar(
           title: Text("Tic Tac Toe"),

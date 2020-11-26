@@ -8,12 +8,12 @@ class User {
   bool isAvailable;
 
 
-  User.fromJson (DocumentSnapshot ds) {
-    uid = ds.documentID;
-    Map jsonData = ds.exists ?? ds.data;
-
+  User.fromJson (Map jsonData) {
+    name = jsonData['name'];
+    uid = jsonData['uid'];
+    userName = jsonData['userName'];
+    isOnline = jsonData['isOnline'];
+    isAvailable = jsonData['isAvailable'];
   }
-
-
 
 }

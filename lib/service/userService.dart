@@ -8,44 +8,34 @@ import '../model/userModel.dart';
 
 class UserProvider extends AuthProvider{
   User _user;
-  List<User> _onlineUsers = List();
+  Set<User> onlineUsers = Set();
   FirebaseUser _firebaseUser;
   BuildContext context;
 
-  UserProvider(this.context){
-    _firebaseUser = Provider.of<AuthProvider>(context, listen: false).firebaseUser;
-  }
+  /// getter methods....
+  ///
+  // Set get onlineUsers => _onlineUsers;
 
-  initUserData ({FirebaseUser firebaseUser}) async {
-    try {
-      print(_firebaseUser.uid);
-      DocumentSnapshot ds = await Firestore.instance.collection('users')
-          .document(_firebaseUser.uid).get();
+  // UserProvider(this.context){
+  //   _firebaseUser = Provider.of<AuthProvider>(context, listen: false).firebaseUser;
 
-      Map<String, dynamic> data = ds.data;
-      print(data);
+  // }
 
-      /// getting started for online players list...
-      OnlineUsers();
-      // return true;
-    } catch(e) {
-      print(e.toString() + '@initUserData');
-    }
-    // return false;
-  }
 
-  OnlineUsers() {
+
+  List getOnlineUsers() {
 
     Stream<QuerySnapshot> stream = Firestore.instance.collection('users')
         .where('isOnline', isEqualTo: true).snapshots().take(10);
 
     stream.listen((event) {
       event.documents.forEach((element) {
-        _onlineUsers.add(User.fromJson(element));
+        onlineUsers.add(User.fromJson(element.data));
       });
 
       print('ff');
-      print(_onlineUsers.length);
+      print(onlineUsers.length);
+      return onlineUsers.toList();
     });
   }
 
