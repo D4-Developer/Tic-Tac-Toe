@@ -7,47 +7,49 @@ import 'auth.dart';
 import '../model/userModel.dart';
 
 class UserProvider extends AuthProvider{
-  User _user;
+  User _authUser;
   Set<User> onlineUsers = Set();
   FirebaseUser _firebaseUser;
   BuildContext context;
+
+  setFirebaseUser (firebaseUser) {
+    if( _firebaseUser == null )
+      _firebaseUser = firebaseUser;
+    print('setter ' + _firebaseUser.uid);
+    getOnlineUsers();
+  }
 
   /// getter methods....
   ///
   // Set get onlineUsers => _onlineUsers;
 
-  // UserProvider(this.context){
-  //   _firebaseUser = Provider.of<AuthProvider>(context, listen: false).firebaseUser;
-
+  // UserProvider([this.context, this._firebaseUser]){
+  //   if(_firebaseUser != null){
+  //     print('firebaseuser != null');
+  //     getOnlineUsers();
+  //     notifyListeners();
+  //   }
   // }
 
 
 
-  List getOnlineUsers() {
+  /// can make return type Set if needed....
+  getOnlineUsers() {
 
     Stream<QuerySnapshot> stream = Firestore.instance.collection('users')
-        .where('isOnline', isEqualTo: true).snapshots().take(10);
+        .where('isOnline', isEqualTo: true).snapshots().take(20);
 
     stream.listen((event) {
-      onlineUsers = List.castFrom(event.documents.where((element) => false)).toList().toSet();
-      // List.from(event.documents.where((element) => false)).toList();
-      event.documents.where((element) {
-        if(element.documentID != _firebaseUser.uid)
-          return true;
-      });
+      onlineUsers = Set();
       event.documents.forEach((element) {
-        onlineUsers.add(User.fromJson(element.data));
+        if(element.documentID != _firebaseUser.uid)
+          onlineUsers.add(User.fromJson(element.data));
       });
 
-      for(User u in onlineUsers){
-        print(u.userName);
-      }
       print('ff');
       print(onlineUsers.length);
-      return onlineUsers.toList();
+      notifyListeners();
     });
+    // return onlineUsers;
   }
-
-
-
 }

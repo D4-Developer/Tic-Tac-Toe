@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:tic_tac_toe/service/userService.dart';
 import '../utilities/loading.dart';
 import '../model/userModel.dart';
 
@@ -27,11 +29,14 @@ class AuthProvider extends ChangeNotifier {
 
   AuthStatus get authStatus => _authStatus;
 
-  FirebaseUser get firebaseUser => _firebaseUser;
-
-  void set(AuthStatus status){
-    _authStatus = status;
+  FirebaseUser get firebaseUser {
+    print(_firebaseUser.email);
+    return _firebaseUser;
   }
+
+  // set authStatus (status) {
+  //   _authStatus = status;
+  // }
 
   Future<bool> handleGoogleSignIn(BuildContext context) async{
 
@@ -59,7 +64,7 @@ class AuthProvider extends ChangeNotifier {
         // return true;
 
       print('true');
-
+      _setterFirebaseUser();
       _authStatus = AuthStatus.LoggedIn;
       return true;
 
@@ -118,6 +123,10 @@ class AuthProvider extends ChangeNotifier {
       print(e.toString() + '@initUserData');
     }
     // return false;
+  }
+
+  _setterFirebaseUser() {
+    // Provider.value(value: UserProvider).;
   }
 
 }

@@ -35,8 +35,13 @@ class MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider())
+        ChangeNotifierProvider<AuthProvider>(create: (context) => AuthProvider()),
+        // ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
+          create: (context) => UserProvider(),
+          update: (context, newAuth, preAuth) => preAuth
+            ..setFirebaseUser(newAuth.firebaseUser)
+        ),
       ],
       builder: (BuildContext context, child){
         return MaterialApp(

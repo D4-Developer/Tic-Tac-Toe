@@ -11,36 +11,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _index = 0;
-  UserProvider _userProvider;
-  List<User> onlineUsers = List();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  // Set<User> onlineUsers = Set();
+  // final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AuthProvider authProvider = Provider.of<AuthProvider>(context,listen: false);
-      initUserProvider();
-
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   AuthProvider authProvider = Provider.of<AuthProvider>(context,listen: false);
+    //   // initUserProvider();
+    // });
 
     super.initState();
   }
 
-  initUserProvider(){
-    print('initUserProvider');
-    _userProvider = Provider.of<UserProvider>(context,listen: false);
-    onlineUsers = _userProvider.getOnlineUsers();
-  }
-
   @override
   Widget build(BuildContext context) {
-    print(_index);
+    // print(_index);
     return Builder(
       builder:(BuildContext context) {
         return Scaffold(
         body: SafeArea(
-          key: _scaffoldKey,
+          // key: _scaffoldKey,
           child: WillPopScope(
             onWillPop: () async{
               return false;
@@ -73,9 +65,7 @@ class _HomePageState extends State<HomePage> {
           unselectedItemColor: Colors.blueGrey,
           onTap: (index){
             if (index != _index)
-              setState(() {
-                _index = index;
-              });
+              setState(() => _index = index);
             // print(index);
           },
         ),
@@ -88,18 +78,22 @@ class _HomePageState extends State<HomePage> {
     // List<User> users = _userProvider.onlineUsers.toList();
     return Consumer<UserProvider>(
       builder: (context, state, child){
+        // print(onlineUsers.length);
         return Container(
-          child: ListView.builder(
-            itemCount: onlineUsers.length,
-            itemBuilder: (BuildContext context, index){
+          child: AnimatedList(
+            // itemCount: state.onlineUsers.length,
+            initialItemCount: 3,
+            itemBuilder: (BuildContext context, index, _){
               return ListTile(
-                title: Text(onlineUsers[index].userName),
+                title: Text(state.onlineUsers.elementAt(index).userName),
               );
             },
           ),
         );
       },
-      child: SliverToBoxAdapter(),
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 
