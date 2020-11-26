@@ -29,10 +29,19 @@ class UserProvider extends AuthProvider{
         .where('isOnline', isEqualTo: true).snapshots().take(10);
 
     stream.listen((event) {
+      onlineUsers = List.castFrom(event.documents.where((element) => false)).toList().toSet();
+      // List.from(event.documents.where((element) => false)).toList();
+      event.documents.where((element) {
+        if(element.documentID != _firebaseUser.uid)
+          return true;
+      });
       event.documents.forEach((element) {
         onlineUsers.add(User.fromJson(element.data));
       });
 
+      for(User u in onlineUsers){
+        print(u.userName);
+      }
       print('ff');
       print(onlineUsers.length);
       return onlineUsers.toList();
